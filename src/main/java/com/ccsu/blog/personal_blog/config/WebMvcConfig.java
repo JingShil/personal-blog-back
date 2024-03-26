@@ -24,7 +24,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 excludePathPatterns("/user/register").
                 excludePathPatterns("/article/list").
                 excludePathPatterns("/tag/list").excludePathPatterns("/user/admin/info").
-                excludePathPatterns("/img/download");
+                excludePathPatterns("/img/download").excludePathPatterns("/user/download/avatar").excludePathPatterns("/article/get-one");
 //                excludePathPatterns("/article/list");
     }
     @Override

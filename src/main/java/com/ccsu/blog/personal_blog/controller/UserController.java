@@ -32,9 +32,13 @@ public class UserController {
     @Value("${user.adminId}")
     private String adminId;
 
+
+    @Value("${file.path}")
+    private String filePath;
+
     private TokenUtil tokenUtil = new TokenUtil();
 
-    private static String filePath = "E:/ImgData/Blog/";
+//    private static String filePath = "E:/ImgData/Blog/";
 
     @GetMapping("/code")
     public Result<String> code(@RequestBody User user){

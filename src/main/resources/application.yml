@@ -1,11 +1,12 @@
 server:
   port: 8081
+  location: "http://43.129.171.44"
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/personal_blog?serverTimezone=GMT%2b8&useSSL=false&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/personal_blog?serverTimezone=GMT%2b8&useSSL=false&characterEncoding=UTF-8
     username: root
-    password: root
+    password: "1819891412s"
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -13,12 +14,12 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
-  cors:
-    webflux:
-      allowed-origins: http://localhost:8080
-      allowed-methods: GET,POST,PUT,DELETE
-      allowed-headers: Content-Type,Authorization
-      allow-credentials: true
+#  cors:
+#    webflux:
+#      allowed-origins: http://localhost:8080
+#      allowed-methods: GET,POST,PUT,DELETE
+#      allowed-headers: Content-Type,Authorization
+#      allow-credentials: true
 
 
 mybatis-plus:
@@ -28,6 +29,12 @@ mybatis-plus:
 user:
   adminId: "1771163535399747585"
 
+#file:
+#  path: "E:/ImgData/Blog/"
+
 file:
-  path: "E:/ImgData/Blog/"
+  path: "/usr/local/data/img/"
+
+img:
+  downloadPath: "${server.location}:${server.port}/img/download?fileName="
 

@@ -36,6 +36,8 @@ public class UserController {
     @Value("${file.path}")
     private String filePath;
 
+
+
     private TokenUtil tokenUtil = new TokenUtil();
 
 //    private static String filePath = "E:/ImgData/Blog/";

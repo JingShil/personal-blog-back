@@ -30,6 +30,9 @@ public class ImgController {
     @Value("${file.path}")
     private String filePath;
 
+    @Value("${img.downloadPath}")
+    private String downloadPath;
+
     @PostMapping("/upload")
     public FileFormData imgUpload(@RequestBody MultipartFile file){
 
@@ -53,7 +56,7 @@ public class ImgController {
             FileFormData fileFormData = new FileFormData();
             FileData fileData = new FileData();
             Map<String,String> map=new HashMap<>();
-            map.put(fileName,"http://localhost:8081/img/download?fileName=" + fileName);
+            map.put(fileName,downloadPath + fileName);
             fileData.setSuccMap(map);
             fileFormData.setData(fileData);
             fileFormData.setMsg("");

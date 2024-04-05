@@ -39,8 +39,8 @@ public class ArticleController {
 
 
     @PostMapping("/save")
-    public Result<String> save(@RequestHeader("Token") String token,@RequestBody ArticleTags articleTags){
-        String userId = tokenUtil.extractSubjectFromToken(token);
+    public Result<String> save(@RequestHeader("UserId") String userId,@RequestBody ArticleTags articleTags){
+
         List<Tag> tagList = articleTags.getTagList();
         Article article = articleTags.getArticle();
         article.setUserId(userId);
@@ -72,9 +72,9 @@ public class ArticleController {
     }
 
     @PostMapping("/list/private")
-    public Result<IPage<Article>> listPrivate(@RequestHeader("Token") String token, @RequestBody ArticleListElement articleListElement){
-        String id = tokenUtil.extractSubjectFromToken(token);
-        articleListElement.setUserId(id);
+    public Result<IPage<Article>> listPrivate(@RequestHeader("UserId") String userId, @RequestBody ArticleListElement articleListElement){
+//        String id = tokenUtil.extractSubjectFromToken(token);
+        articleListElement.setUserId(userId);
         IPage<Article> articlePageList = articleService.getArticles(articleListElement);
         if(articlePageList == null){
             return Result.error("错误");

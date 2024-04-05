@@ -31,6 +31,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // 对所有路径生效
                 .allowedOrigins("*") //允许所有源地址
+//                .allowedOrigins("http://localhost:8080")
+//                .allowedOrigins("http://43.129.171.44:80","http://furinafontaine.love")
                 // .allowedOrigins("https://mijiupro.com","https://mijiu.com ") // 允许的源地址（数组）
                 .allowedMethods("GET", "POST", "PUT", "DELETE","OPTIONS") // 允许的请求方法
                 .allowedHeaders("*"); // 允许的请求头

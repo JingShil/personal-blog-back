@@ -9,6 +9,7 @@ import com.ccsu.blog.personal_blog.utils.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -36,6 +39,11 @@ public class UserController {
     @Value("${file.path}")
     private String filePath;
 
+    @Autowired
+    private RedisTemplate<String,String> redisTemplate;
+
+    @Value("${spring.redis.token.expiration-time}")
+    private Long expirationTime;
 
 
     private TokenUtil tokenUtil = new TokenUtil();
@@ -48,7 +56,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Result<UserInfo> login(@RequestBody User user){
+    public Result<User> login(@RequestBody User user){
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getPhone,user.getPhone());
 
@@ -60,17 +68,18 @@ public class UserController {
         if(!dataUser.getPassword().equals(user.getPassword()) ){
             return Result.error("密码错误");
         }
-        String token = tokenUtil.generateToken(dataUser.getId());
-        UserInfo userInfo = new UserInfo();
-        userInfo.setName(dataUser.getName());
-        userInfo.setLocation(dataUser.getLocation());
-        userInfo.setCollege(dataUser.getCollege());
-        userInfo.setBirthday(dataUser.getBirthday());
-        userInfo.setAvatar(dataUser.getAvatar());
-        userInfo.setSex(dataUser.getSex());
-        userInfo.setCreateTime(dataUser.getCreateTime());
-        userInfo.setUpdateTime(dataUser.getUpdateTime());
-        return Result.successByToken(userInfo,token);
+//        String token = tokenUtil.generateToken(dataUser.getId());
+        String token = setTokenAndToRedis(dataUser.getId());
+//        UserInfo userInfo = new UserInfo();
+//        userInfo.setName(dataUser.getName());
+//        userInfo.setLocation(dataUser.getLocation());
+//        userInfo.setCollege(dataUser.getCollege());
+//        userInfo.setBirthday(dataUser.getBirthday());
+//        userInfo.setAvatar(dataUser.getAvatar());
+//        userInfo.setSex(dataUser.getSex());
+//        userInfo.setCreateTime(dataUser.getCreateTime());
+//        userInfo.setUpdateTime(dataUser.getUpdateTime());
+        return Result.successByToken(dataUser,token);
     }
 
     @PostMapping("/token")
@@ -79,6 +88,13 @@ public class UserController {
 
         boolean b = tokenUtil.validateToken(token);
         return Result.success("你好");
+    }
+
+    public String setTokenAndToRedis(String id){
+        UUID uuid = UUID.randomUUID();
+        String token = uuid.toString();
+        redisTemplate.opsForValue().set("blog:token:" + id,token,1800L, TimeUnit.SECONDS);
+        return token;
     }
 
     @PostMapping("/register")
@@ -96,20 +112,20 @@ public class UserController {
 
 
     @PostMapping("/save")
-    public Result<String> save(@RequestHeader("Token") String token,@RequestBody User user){
-        String id=tokenUtil.extractSubjectFromToken(token);
-        user.setId(id);
+    public Result<String> save(@RequestHeader("UserId") String userId,@RequestBody User user){
+//        String id=tokenUtil.extractSubjectFromToken(userId);
+        user.setId(userId);
         userService.saveOrUpdate(user);
         return Result.success("保存成功");
     }
 
     @PutMapping("/upload/avatar")
-    public Result<String> saveAvatar(@RequestHeader("Token") String token,@RequestParam("file") MultipartFile file){
-        String id = tokenUtil.extractSubjectFromToken(token);
-        User user = userService.getById(id);
+    public Result<String> saveAvatar(@RequestHeader("UserId") String userId,@RequestParam("file") MultipartFile file){
+//        String id = tokenUtil.extractSubjectFromToken(token);
+        User user = userService.getById(userId);
         try {
             String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-            String fileName = id + "." + fileExtension; // 构建文件名为 user.id + 文件后缀
+            String fileName = userId + "." + fileExtension; // 构建文件名为 user.id + 文件后缀
             String uploadDir = filePath; // 指定要保存文件的路径
 
             // 确保上传目录存在，如果不存在则创建

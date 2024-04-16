@@ -45,6 +45,9 @@ public class UserController {
     @Value("${spring.redis.token.expiration-time}")
     private Long expirationTime;
 
+    @Value("${img.downloadPath}")
+    private String imgDownloadPath;
+
 
     private TokenUtil tokenUtil = new TokenUtil();
 
@@ -79,6 +82,7 @@ public class UserController {
 //        userInfo.setSex(dataUser.getSex());
 //        userInfo.setCreateTime(dataUser.getCreateTime());
 //        userInfo.setUpdateTime(dataUser.getUpdateTime());
+
         return Result.successByToken(dataUser,token);
     }
 
@@ -93,7 +97,7 @@ public class UserController {
     public String setTokenAndToRedis(String id){
         UUID uuid = UUID.randomUUID();
         String token = uuid.toString();
-        redisTemplate.opsForValue().set("blog:token:" + id,token,1800L, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set("blog:token:" + id,token,18000L, TimeUnit.SECONDS);
         return token;
     }
 
@@ -126,21 +130,21 @@ public class UserController {
         try {
             String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
             String fileName = userId + "." + fileExtension; // 构建文件名为 user.id + 文件后缀
-            String uploadDir = filePath; // 指定要保存文件的路径
+            // 指定要保存文件的路径
 
             // 确保上传目录存在，如果不存在则创建
-            File uploadPath = new File(uploadDir);
+            File uploadPath = new File(filePath);
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
             }
 
             // 将文件保存到指定路径
-            String filePath = uploadDir + fileName;
-            File dest = new File(filePath);
+            String filePath1 = filePath + fileName;
+            File dest = new File(filePath1);
             file.transferTo(dest);
 
             // 更新用户的头像信息为文件路径或文件名
-            user.setAvatar(filePath);
+            user.setAvatar(fileName);
             userService.saveOrUpdate(user);
 
             return Result.success("保存成功");
@@ -150,9 +154,10 @@ public class UserController {
     }
 
     @GetMapping("/download/avatar")
-    public ResponseEntity<Resource> downloadAvatar(@RequestParam String filePath) {
+    public ResponseEntity<Resource> downloadAvatar(@RequestParam String fileName) {
         // 使用绝对路径创建文件对象
-        File file = new File(filePath);
+        String filePath1 = filePath + fileName;
+        File file = new File(filePath1);
 
         try {
             // 从文件对象创建资源
@@ -169,9 +174,16 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public Result<UserInfo> getUserInfo(@RequestHeader("Token") String token){
+    public Result<User> getUserInfo(@RequestHeader("Token") String token){
         String id = tokenUtil.extractSubjectFromToken(token);
         User user = userService.getById(id);
+//        UserInfo userInfo = userToUserInfo(user);
+        return Result.success(user);
+    }
+
+    @GetMapping("/article/info")
+    public Result<UserInfo> getArticleUserInfo(@RequestParam String articleId){
+        User user = userService.getById(articleId);
         UserInfo userInfo = userToUserInfo(user);
         return Result.success(userInfo);
     }

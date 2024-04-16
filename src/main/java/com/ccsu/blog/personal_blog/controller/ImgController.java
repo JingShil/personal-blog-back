@@ -51,7 +51,7 @@ public class ImgController {
             File dest = new File(finalFilePath);
             file.transferTo(dest);
             Img img = new Img();
-            img.setFilePath(finalFilePath);
+            img.setFilePath(fileName);
             imgMapper.insert(img);
             FileFormData fileFormData = new FileFormData();
             FileData fileData = new FileData();

@@ -1,10 +1,8 @@
 package com.ccsu.blog.personal_blog.controller;
 
-import com.ccsu.blog.personal_blog.entity.FileData;
-import com.ccsu.blog.personal_blog.entity.FileFormData;
-import com.ccsu.blog.personal_blog.entity.Img;
-import com.ccsu.blog.personal_blog.entity.Result;
+import com.ccsu.blog.personal_blog.entity.*;
 import com.ccsu.blog.personal_blog.mapper.ImgMapper;
+import com.ccsu.blog.personal_blog.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -19,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/img")
@@ -33,14 +32,17 @@ public class ImgController {
     @Value("${img.downloadPath}")
     private String downloadPath;
 
+    @Autowired
+    private ArticleService articleService;
+
     @PostMapping("/upload")
     public FileFormData imgUpload(@RequestBody MultipartFile file){
 
         try {
             String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-            String fileName = currentDateTime.format(formatter) + "." + fileExtension;
+//            LocalDateTime currentDateTime = LocalDateTime.now();
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+            String fileName = UUID.randomUUID() + "." + fileExtension;
 
 //            String uploadDir = filePath;
 //            File uploadPath = new File(uploadDir);
@@ -62,6 +64,29 @@ public class ImgController {
             fileFormData.setMsg("");
             fileFormData.setCode(1);
             return fileFormData;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PutMapping("/upload/article")
+    public Result<String> imgArticleUpload(@RequestHeader("ArticleId") String articleId,@RequestBody MultipartFile file){
+        if(articleId==null){
+            return Result.error("错误");
+        }
+
+        try {
+            String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
+
+            String fileName = articleId + "." + fileExtension;
+
+            String finalFilePath = filePath + fileName;
+            File dest = new File(finalFilePath);
+            file.transferTo(dest);
+            Article article = articleService.getById(articleId);
+            article.setImg(fileName);
+            articleService.saveOrUpdate(article);
+            return Result.success(fileName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

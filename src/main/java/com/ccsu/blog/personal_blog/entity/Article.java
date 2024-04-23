@@ -19,7 +19,7 @@ public class Article {
     private Integer commentNum;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
-
+    private String img;
     @PrePersist
     protected void onCreate(){
         createTime = LocalDateTime.now();

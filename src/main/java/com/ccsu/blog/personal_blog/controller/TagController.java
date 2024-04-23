@@ -28,6 +28,17 @@ public class TagController {
         return Result.success(tagService.list());
     }
 
+    @GetMapping("/list/private")
+    public Result<List<Tag>> getTagListPrivate(@RequestParam(value = "name", required = false) String name){
+
+        if(name != null){
+            LambdaQueryWrapper<Tag> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.like(Tag::getName,name);
+            return Result.success(tagService.list(queryWrapper));
+        }
+        return Result.success(tagService.list());
+    }
+
     @PostMapping("save")
     public Result<String> save(@RequestBody Tag tag){
         if(tag != null){

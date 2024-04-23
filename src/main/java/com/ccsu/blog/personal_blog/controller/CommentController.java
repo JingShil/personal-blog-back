@@ -80,7 +80,7 @@ public class CommentController {
     }
 
     @PostMapping("/add/reply")
-    public Result<String> addComment(@RequestBody Reply reply){
+    public Result<String> addReply(@RequestBody Reply reply){
         if(reply==null){
             return Result.error("错误");
         }

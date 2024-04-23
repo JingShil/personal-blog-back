@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -129,7 +131,9 @@ public class UserController {
         User user = userService.getById(userId);
         try {
             String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
-            String fileName = userId + "." + fileExtension; // 构建文件名为 user.id + 文件后缀
+//            LocalDateTime currentDateTime = LocalDateTime.now();
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+            String fileName = userId + "." + fileExtension;
             // 指定要保存文件的路径
 
             // 确保上传目录存在，如果不存在则创建
@@ -174,9 +178,8 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public Result<User> getUserInfo(@RequestHeader("Token") String token){
-        String id = tokenUtil.extractSubjectFromToken(token);
-        User user = userService.getById(id);
+    public Result<User> getUserInfo(@RequestParam String userId){
+        User user = userService.getById(userId);
 //        UserInfo userInfo = userToUserInfo(user);
         return Result.success(user);
     }

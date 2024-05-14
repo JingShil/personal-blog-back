@@ -73,17 +73,8 @@ public class UserController {
         if(!dataUser.getPassword().equals(user.getPassword()) ){
             return Result.error("密码错误");
         }
-//        String token = tokenUtil.generateToken(dataUser.getId());
+
         String token = setTokenAndToRedis(dataUser.getId());
-//        UserInfo userInfo = new UserInfo();
-//        userInfo.setName(dataUser.getName());
-//        userInfo.setLocation(dataUser.getLocation());
-//        userInfo.setCollege(dataUser.getCollege());
-//        userInfo.setBirthday(dataUser.getBirthday());
-//        userInfo.setAvatar(dataUser.getAvatar());
-//        userInfo.setSex(dataUser.getSex());
-//        userInfo.setCreateTime(dataUser.getCreateTime());
-//        userInfo.setUpdateTime(dataUser.getUpdateTime());
 
         return Result.successByToken(dataUser,token);
     }
@@ -185,8 +176,8 @@ public class UserController {
     }
 
     @GetMapping("/article/info")
-    public Result<UserInfo> getArticleUserInfo(@RequestParam String articleId){
-        User user = userService.getById(articleId);
+    public Result<UserInfo> getArticleUserInfo(@RequestParam String userId){
+        User user = userService.getById(userId);
         UserInfo userInfo = userToUserInfo(user);
         return Result.success(userInfo);
     }

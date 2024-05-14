@@ -67,8 +67,7 @@ public class ArticleController {
         }
         articleService.saveOrUpdate(article);
         articleTagService.saveBatch(articleTagList);
-
-        return Result.success("保存成功");
+        return Result.success(article.getId());
     }
 
     @PostMapping("/list/private")
